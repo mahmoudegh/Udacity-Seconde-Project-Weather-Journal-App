@@ -32,7 +32,7 @@ function listening() {
   console.log(`running on localhost: ${port}`);
 }
 
-// Arrow Function
+// Arrow Function Method
 // const server = app.listen(port, () => {
 //   console.log(`running on localhost: ${port}`);
 // });
@@ -61,4 +61,4 @@ app.post("/add", function (req, res) {
 
 // let data = request.body;
 // projectData["intelligence"] = data.intelligence;
-projectData.push(request.body);
+// projectData.push(request.body);

@@ -36,4 +36,6 @@ const data = [];
 app.post('/', (req, res) => {
   data.push(req.body);
   res.send(projectData);
+  console.log(data);
+  console.log(projectData);
 });

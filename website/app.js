@@ -16,17 +16,28 @@ function performAction(e) {
 }
 /* Function to GET data */
 const postData = async (url, zip, key) => {
-  const response = await fetch(url + zip + key);
+  const response = await fetch(url + zip + key, {
+    method: 'POST',
+  });
 
   try {
     const newData = await response.json();
-    console.log(newData.list[0].main.temp);
-    console.log(newData);
-    // Object.entries(newData.list).forEach((el) => {
-    //   console.log(el[1].main.temp);
-    // });
-    // console.log(Object.entries(newData)[3]);
+    const dateNow = parseInt(Date.now().toString().slice(0, 10));
+    const dtList = [];
+    newData.list.forEach((el1) => {
+      dtList.push(el1.dt);
+      // console.log(el1.main.temp);
+      dtList.forEach((el2) => {
+        if (dateNow < el2) {
+          console.log(dateNow, dtList[0], el1.main.temp);
+        }
+      });
+    });
+
     return newData;
+    // console.log(newData.list[0].main.temp);
+
+    // console.log(Object.entries(newData)[3]);
   } catch (error) {
     console.log('error', error);
     // appropriately handle the error

@@ -1,47 +1,74 @@
-const baseURL = 'http://api.openweathermap.org/data/2.5/forecast?id=';
-const apiKey = '&appid=a26e439037a7723ccab5cff83466280d';
-const zipCode = document.getElementById('zip');
-const date = document.getElementById('date');
-const temp = document.getElementById('temp');
-const content = document.getElementById('content');
-// Create a new date instance dynamically with JS
-let d = new Date();
-let newDate = `${d.getDate()} / ${d.getMonth() + 1} / ${d.getFullYear()}`;
-date.innerHTML = `Date : ${newDate}`;
+const baseURL = "http://api.openweathermap.org/data/2.5/forecast?id=";
+const apiKey = "&appid=a26e439037a7723ccab5cff83466280d";
+///////////////////////////////////////////////////////////////////////
 
-document.getElementById('generate').addEventListener('click', performAction);
+document.getElementById("generate").addEventListener("click", performAction);
+//////////////////////////////////////////////////////////////////////////////
 
 function performAction(e) {
-  postData(baseURL, zipCode.value, apiKey);
+  const zipCode = document.getElementById("zip").value;
+  const feelings = document.getElementById("feelings").value;
+
+  getData(baseURL, zipCode, apiKey)
+    .then(function (data) {
+      console.log(data);
+
+      // Add Data to Post Request
+      postData("/addData", {
+        date: data.list[0].dt_txt,
+        temp: data.list[0].main.temp,
+        feelings: feelings,
+      });
+    })
+    .then(updateUI());
 }
+/////////////////////////////////////////////////////////////////////////////////////
+
 /* Function to GET data */
-const postData = async (url, zip, key) => {
-  const response = await fetch(url + zip + key, {
-    method: 'POST',
+const getData = async (baseURL, zip, key) => {
+  const res = await fetch(baseURL + zip + key);
+
+  try {
+    const data = await res.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+//////////////////////////////////////////////////////////////////////////////////////
+
+const postData = async (url = "", data = {}) => {
+  // console.log(data);
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
   });
 
   try {
-    const newData = await response.json();
-    const dateNow = parseInt(Date.now().toString().slice(0, 10));
-    const dtList = [];
-    newData.list.forEach((el1) => {
-      dtList.push(el1.dt);
-      // console.log(el1.main.temp);
-      dtList.forEach((el2) => {
-        if (dateNow < el2) {
-          console.log(dateNow, dtList[0], el1.main.temp);
-        }
-      });
-    });
-
+    const newData = await res.json();
+    console.log(newData);
     return newData;
-    // console.log(newData.list[0].main.temp);
-
-    // console.log(Object.entries(newData)[3]);
   } catch (error) {
-    console.log('error', error);
-    // appropriately handle the error
+    console.log("error", error);
   }
 };
+////////////////////////////////////////////////////////////////////////////////////
 
-// TO DO-Call Function
+// TODO-Async GET
+const updateUI = async () => {
+  const request = await fetch("/all");
+  try {
+    const allData = await request.json();
+    console.log(allData);
+    document.getElementById("date").innerHTML = allData[allData.length - 1].date;
+    document.getElementById("temp").innerHTML = allData[allData.length - 1].temp;
+    document.getElementById("content").innerHTML = allData[allData.length - 1].feelings;
+  } catch (error) {
+    console.log("error", error);
+  }
+};

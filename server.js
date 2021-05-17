@@ -2,22 +2,22 @@
 const projectData = {};
 
 // Express to run server and routes
-const express = require("express");
+const express = require('express');
 
 // Start up an instance of app
 const app = express();
 
 // Dependencies
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-const cors = require("cors");
+const cors = require('cors');
 app.use(cors());
 
 // Initialize the main project folder
-app.use(express.static("website"));
+app.use(express.static('website'));
 
 // Select Port
 const port = 8000;
@@ -28,19 +28,25 @@ const server = app.listen(port, () => {
 });
 
 // GET route => Respond with JS object when a GET request is made to the homepage
-const baseURL = "http://api.openweathermap.org/data/2.5/forecast?id=";
-const apiKey = "&appid=a26e439037a7723ccab5cff83466280d";
-const zipCode = "524901";
-app.get(baseURL + zipCode + apiKey, (req, res) => {
+const baseURL = 'http://api.openweathermap.org/data/2.5/weather?zip=';
+const apiKey = '&appid=a26e439037a7723ccab5cff83466280d';
+
+app.get(baseURL + apiKey, (req, res) => {
   res.send(projectData);
 });
 
 // End point for server side
 const weatherData = [];
 
+// Get Rout
+app.get('/all', (req, res) => {
+  res.send(weatherData);
+});
+
 // POST route
-app.post("/addData", (req, res) => {
+app.post('/addData', (req, res) => {
   newEntry = {
+    city: req.body.city,
     temp: req.body.temp,
     feelings: req.body.feelings,
   };

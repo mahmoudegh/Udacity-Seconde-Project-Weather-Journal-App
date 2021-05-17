@@ -1,13 +1,6 @@
-// Set Date
-const today = new Date();
-const date = document.getElementById('date');
-date.innerHTML = `Date: ${today.getDate()} - ${
-  today.getMonth() + 1
-} - ${today.getFullYear()}`;
-
 // Api Parts
 const baseURL = 'http://api.openweathermap.org/data/2.5/weather?zip=';
-const apiKey = '&appid=a26e439037a7723ccab5cff83466280d';
+const apiKey = '&appid=a26e439037a7723ccab5cff83466280d&units=metric';
 
 // Start click event
 document.getElementById('generate').addEventListener('click', performAction);
@@ -16,10 +9,12 @@ document.getElementById('generate').addEventListener('click', performAction);
 function performAction() {
   const zipCode = document.getElementById('zip').value;
   const feelings = document.getElementById('feelings').value;
+  const date = new Date().toDateString();
 
   getData(baseURL, zipCode, apiKey).then(function (data) {
     // Add Data to Post Request
     postData('/addData', {
+      date: date,
       city: data.name,
       temp: data.main.temp,
       feelings: feelings,
@@ -36,7 +31,18 @@ const getData = async (baseURL, zip, key) => {
 
   try {
     const data = await res.json();
-    return data;
+
+    // Check If Zip Is Wrong
+    if (data.cod === '404') {
+      document.getElementById('error').innerHTML = 'City Not Found';
+      document.getElementById('date').innerHTML = '';
+      document.getElementById('country').innerHTML = '';
+      document.getElementById('temp').innerHTML = '';
+      document.getElementById('content').innerHTML = '';
+    } else {
+      document.getElementById('error').innerHTML = '';
+      return data;
+    }
   } catch (error) {
     console.log('error', error);
   }
@@ -66,16 +72,16 @@ const updateUI = async () => {
   const request = await fetch('/all');
   try {
     const allData = await request.json();
-    document.getElementById('country').innerHTML = `City: ${
-      allData[allData.length - 1].city
-    }`;
+    document.getElementById('date').innerHTML = `Date: ${allData.date}`;
+    document.getElementById('country').innerHTML = `City: ${allData.city}`;
     document.getElementById('temp').innerHTML = `Temp: ${Math.ceil(
-      allData[allData.length - 1].temp - 273.15, // Convert from kelvin to celsius
+      allData.temp,
     )} &deg;C`;
-    document.getElementById('content').innerHTML = `Your feelings: ${
-      allData[allData.length - 1].feelings
-    }`;
+    document.getElementById(
+      'content',
+    ).innerHTML = `Your feelings: ${allData.feelings}`;
   } catch (error) {
     console.log('error', error);
+    document.getElementById('error').innerHTML = 'City Not Found';
   }
 };
